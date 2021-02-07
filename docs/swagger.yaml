@@ -1,0 +1,94 @@
+definitions:
+  handler.Token:
+    properties:
+      token:
+        type: string
+    type: object
+  model.User:
+    properties:
+      id:
+        type: string
+      password:
+        type: string
+    type: object
+  model.homework:
+    properties:
+      class:
+        type: string
+      content:
+        type: string
+      status:
+        type: string
+      teacher:
+        type: string
+      time:
+        type: string
+      title:
+        type: string
+    type: object
+host: localhost
+info:
+  contact:
+    email: 864978550@qq.com
+    name: TAODEI
+  description: 记事园API
+  termsOfService: http://swagger.io/terrms/
+  title: TheEventsGarden API
+  version: 1.0.0
+paths:
+  /:
+    post:
+      consumes:
+      - application/json
+      description: 学号密码登录
+      parameters:
+      - description: 登录的用户信息
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 将student_id作为token保留
+          schema:
+            $ref: '#/definitions/handler.Token'
+        "400":
+          description: 输入有误，格式错误
+        "401":
+          description: 用户名或密码错误
+      summary: 登录
+  /crawler:
+    post:
+      consumes:
+      - application/json
+      description: 爬取用户云课堂作业
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: password
+        in: body
+        name: password
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            items:
+              $ref: '#/definitions/model.homework'
+            type: array
+        "400":
+          description: 输入有误，格式错误
+        "401":
+          description: 找不到该用户信息，请先登录
+      summary: 爬取作业
+swagger: "2.0"

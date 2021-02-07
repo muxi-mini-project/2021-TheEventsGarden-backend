@@ -1,0 +1,144 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "记事园API",
+        "title": "TheEventsGarden API",
+        "termsOfService": "http://swagger.io/terrms/",
+        "contact": {
+            "name": "TAODEI",
+            "email": "864978550@qq.com"
+        },
+        "version": "1.0.0"
+    },
+    "host": "localhost",
+    "paths": {
+        "/": {
+            "post": {
+                "description": "学号密码登录",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "登录",
+                "parameters": [
+                    {
+                        "description": "登录的用户信息",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "将student_id作为token保留",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Token"
+                        }
+                    },
+                    "400": {
+                        "description": "输入有误，格式错误"
+                    },
+                    "401": {
+                        "description": "用户名或密码错误"
+                    }
+                }
+            }
+        },
+        "/crawler": {
+            "post": {
+                "description": "爬取用户云课堂作业",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "爬取作业",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "password",
+                        "name": "password",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "获取成功",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.homework"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "输入有误，格式错误"
+                    },
+                    "401": {
+                        "description": "找不到该用户信息，请先登录"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handler.Token": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.homework": {
+            "type": "object",
+            "properties": {
+                "class": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "teacher": {
+                    "type": "string"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
