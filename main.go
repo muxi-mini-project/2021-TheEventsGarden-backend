@@ -12,10 +12,11 @@ import (
 // @termsOfService http://swagger.io/terrms/
 // @contact.name TAODEI
 // @contact.email 864978550@qq.com
-// @host localhost
+// @host 124.71.184.107
 // @BasePath: /api/v1
+// @Schemes http
 func main() {
 	r := gin.Default()
 	routers.Router(r)
-	r.Run(":3333")
+	r.Run(":1333")
 }

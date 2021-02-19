@@ -1,4 +1,7 @@
 {
+    "schemes": [
+        "http"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "记事园API",
@@ -10,7 +13,7 @@
         },
         "version": "1.0.0"
     },
-    "host": "localhost",
+    "host": "124.71.184.107",
     "paths": {
         "/": {
             "post": {

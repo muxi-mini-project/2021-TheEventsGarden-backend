@@ -26,7 +26,7 @@ definitions:
       title:
         type: string
     type: object
-host: localhost
+host: 124.71.184.107
 info:
   contact:
     email: 864978550@qq.com
@@ -91,4 +91,6 @@ paths:
         "401":
           description: 找不到该用户信息，请先登录
       summary: 爬取作业
+schemes:
+- http
 swagger: "2.0"
