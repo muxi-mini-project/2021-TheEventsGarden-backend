@@ -6,9 +6,17 @@ definitions:
     type: object
   model.User:
     properties:
-      id:
+      name:
         type: string
       password:
+        type: string
+      sex:
+        type: integer
+      student_id:
+        type: string
+      summary:
+        type: string
+      user_picture:
         type: string
     type: object
   model.homework:
@@ -36,31 +44,7 @@ info:
   title: TheEventsGarden API
   version: 1.0.0
 paths:
-  /:
-    post:
-      consumes:
-      - application/json
-      description: 学号密码登录
-      parameters:
-      - description: 登录的用户信息
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/model.User'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: 将student_id作为token保留
-          schema:
-            $ref: '#/definitions/handler.Token'
-        "400":
-          description: 输入有误，格式错误
-        "401":
-          description: 用户名或密码错误
-      summary: 登录
-  /crawler:
+  /homework:
     post:
       consumes:
       - application/json
@@ -87,10 +71,70 @@ paths:
               $ref: '#/definitions/model.homework'
             type: array
         "400":
-          description: 输入有误，格式错误
+          description: Lack Necessary_Param.
         "401":
-          description: 找不到该用户信息，请先登录
+          description: Token Invalid.
+        "500":
+          description: Fail.
       summary: 爬取作业
+  /user:
+    post:
+      consumes:
+      - application/json
+      description: 学号密码登录
+      parameters:
+      - description: 登录的用户信息
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 将student_id作为token保留
+          schema:
+            $ref: '#/definitions/handler.Token'
+        "400":
+          description: Lack Necessary_Param.
+        "401":
+          description: 用户名或密码错误
+        "500":
+          description: Fail.
+      summary: 登录
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: 接收新的User结构体来修改用户信息
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 需要修改的用户信息
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 修改成功
+        "400":
+          description: Lack Necessary_Param." or "Sex参数错误(0 = 未设置， 1 = 男， 2 = 女)
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 修改用户信息
+      tags:
+      - user
 schemes:
 - http
 swagger: "2.0"

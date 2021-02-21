@@ -1,26 +1,20 @@
 package model
 
 import (
-	"encoding/json"
 	"errors"
-	"fmt"
-	"io/ioutil"
-	"net/http"
-	"net/http/cookiejar"
-	"net/url"
-	"strconv"
-	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/tidwall/gjson"
-	"golang.org/x/net/publicsuffix"
+	"github.com/jinzhu/gorm"
 )
 
 const (
 	ErrorReasonServerBusy = "服务器繁忙"
 	ErrorReasonReLogin    = "请重新登陆"
 )
+
+//DB 全局变量
+var DB *gorm.DB
 
 func VerifyToken(strToken string) (string, error) {
 	//解析
@@ -41,192 +35,60 @@ func VerifyToken(strToken string) (string, error) {
 	return claims.StudentID, nil
 }
 
-func AddHeaders(request *http.Request) *http.Request {
-	request.Header.Add("Content-Type", "application/x-www-form-urlencoded")
-	request.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/72.0.3626.109 Safari/537.36")
-	request.Header.Set("Host", "spoc.ccnu.edu.cn")
-	request.Header.Set("Origin", "http://spoc.ccnu.edu.cn")
-	request.Header.Set("Referer", "http://spoc.ccnu.edu.cn/studentHomepage")
-	return request
+func UpdateUserInfo(user User) error {
+	var u User
+	result := DB.Model(&u).Update(user)
+	return result.Error
 }
 
-func GetHomework(id string, pwd string) []homework {
-	client, err := NewClient()
-	if err != nil {
-		panic(err)
+func CreateBackpad(id string, backpad Backpad) error {
+	backpad.Time = time.Now()
+	backpad.StudentID = id
+	// 0 = 未完成
+	backpad.State = 0
+	if result := DB.Create(&backpad); result.Error != nil {
+		return result.Error
 	}
-	fmt.Println(id)
-	fmt.Println(pwd)
-	_, Homeworkss, err := LoginSPOC(id, pwd, client)
-	if err != nil {
-		panic(err)
-	}
-	//log.Println(response)
-	//log.Println(Homeworkss)
-	return Homeworkss
+	return nil
 }
 
-func NewClient() (*http.Client, error) {
-	jar, err := cookiejar.New(&cookiejar.Options{PublicSuffixList: publicsuffix.List})
-	if err != nil {
-		return nil, err
-	}
-	client := http.Client{
-		Timeout: time.Duration(10 * time.Second),
-		Jar:     jar,
-	}
-	return &client, nil
+func ChangeBackpad(id string, backpad Backpad) error {
+	var b Backpad
+	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).First(&b)
+	result := DB.Model(&b).Update(backpad)
+	return result.Error
 }
 
-func LoginSPOC(sno, password string, client *http.Client) (*Response, []homework, error) {
-	v := url.Values{}
-	v.Set("loginName", sno)
-	v.Set("password", password)
-
-	/*request, err := http.NewRequest("GET", "http://spoc.ccnu.edu.cn/userLoginController/getVerifCode", nil)
-	if err != nil {
-		return nil, err
+func GetBackpads(id string) ([]Backpad, error) {
+	var backdrops []Backpad
+	result := DB.Where("student_id = ?", id).Find(&backdrops)
+	if result.Error != nil {
+		return backdrops, result.Error
 	}
-	_, err = client.Do(request)
-	if err != nil {
-		return nil, err
-	}*/
-	request, err := http.NewRequest("POST", "http://spoc.ccnu.edu.cn/userLoginController/getUserProfile", strings.NewReader(v.Encode()))
-	if err != nil {
-		fmt.Println("11111")
-		return nil, nil, err
-	}
-
-	request = AddHeaders(request)
-	_, err = client.Do(request)
-	if err != nil {
-		fmt.Println("22222")
-		return nil, nil, err
-	}
-
-	request, err = http.NewRequest("POST", "http://spoc.ccnu.edu.cn/userInfo/getUserInfo", nil)
-	if err != nil {
-		fmt.Println("33333")
-		return nil, nil, err
-	}
-	request = AddHeaders(request)
-	resp, respErr := client.Do(request)
-	fmt.Printf("%s\n", resp)
-
-	body, err := ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-
-	response2 := Response{}
-	err = json.Unmarshal(body, &response2)
-	//fmt.Printf("%s\n", response2)
-	//fmt.Printf("%s\n", body)
-	if err != nil {
-		fmt.Println("44444")
-		return nil, nil, err
-	}
-
-	if respErr != nil {
-		fmt.Println("55555")
-		return nil, nil, respErr
-	}
-
-	// 爬信息
-	//payload := strings.NewReader(`{"userId":"` + response2.Data.UserInfoVO.ID + `","termCode":"202101","pageNum":1,"pageSize":4}`)
-
-	//fmt.Println(payload)
-	payload := strings.NewReader("")
-	//request, err = http.NewRequest("POST", "http://spoc.ccnu.edu.cn/studentHomepage/getMySite", payload)
-	request, err = http.NewRequest("GET", "http://spoc.ccnu.edu.cn/studentHomepage/getHistorySite?termCode=202002&domainCode=1", payload)
-	request.Header.Add("Content-Type", "application/json")
-	resp, err = client.Do(request)
-	body, _ = ioutil.ReadAll(resp.Body)
-	defer resp.Body.Close()
-	var sites, names, teachers []string
-	for i := 0; ; i++ {
-		num := strconv.Itoa(i)
-		//siteID := gjson.Get(string(body), "data.list."+num+".siteId")
-		siteID := gjson.Get(string(body), "data."+num+".siteId")
-		if siteID.String() == "" {
-			break
-		}
-		// siteName := gjson.Get(string(body), "data.list."+num+".siteName")
-		siteName := gjson.Get(string(body), "data."+num+".siteName")
-		teacher := gjson.Get(string(body), "data."+num+".teacherName")
-		sites = append(sites, siteID.String())
-		names = append(names, siteName.String())
-		teachers = append(teachers, teacher.String())
-
-	}
-	var homeworks []homework
-	var num string
-	for i := 0; i < len(sites); i++ {
-		num = strconv.Itoa(i)
-		//var contents []string
-		payload = strings.NewReader(`{"siteId":"` + sites[i] + `","pageNum":1,"pageSize":5}`)
-		request, err = http.NewRequest("POST", "http://spoc.ccnu.edu.cn/assignment/getStudentAssignmentList", payload)
-		request.Header.Add("Content-Type", "application/json")
-		resp, err = client.Do(request)
-		body, _ = ioutil.ReadAll(resp.Body)
-		defer resp.Body.Close()
-		for j := 0; ; j++ {
-
-			num = strconv.Itoa(j)
-			status := gjson.Get(string(body), "data.list."+num+".status")
-
-			if status.Int() == 0 || status.Int() == 2 {
-				var Homework homework
-				//teacher := gjson.Get(string(body), "data.list."+num+".teacher")
-				Homework.Teacher = teachers[i]
-				Time := gjson.Get(string(body), "data.list."+num+".endtime")
-				x := time.Unix(Time.Int()/1000, 0)
-				Homework.Time = x.Format("2006-01-04 03:04:05")
-				//Homework.Time = time.Time()
-				content := gjson.Get(string(body), "data.list."+num+".content")
-				Homework.Content = Content(content.String())
-				title := gjson.Get(string(body), "data.list."+num+".title")
-				if title.String() == "" {
-					break
-				}
-				Homework.Title = title.String()
-				if status.Int() == 0 {
-					Homework.Status = "未提交"
-				} else {
-					Homework.Status = "已驳回"
-				}
-				Homework.Class = names[i]
-				homeworks = append(homeworks, Homework)
-			}
-		}
-	}
-	return nil, homeworks, nil
+	return backdrops, nil
 }
 
-//去掉content里面的htmi 如 <> 与 &nbsp
-func Content(s string) string {
-	ss := []byte(s)
-	var s2 []byte
-	for i := 0; i < len(ss); i++ {
-		if ss[i] == '<' {
-		LABEL1:
-			for ss[i] != '>' {
-				i++
-			}
-			if i == len(ss)-1 {
-				break
-			}
-			i++
-			if ss[i] == '<' {
-				goto LABEL1
-			}
-		}
-	LABEL2:
-		if ss[i] == '&' {
-			i += 6
-			if ss[i] == '&' {
-				goto LABEL2
-			}
-		}
-		s2 = append(s2, ss[i])
+func GetUserInfo(id string) (User, error) {
+	var u User
+	result := DB.Where("student_id = ?", id).First(&u)
+	if result.Error != nil {
+		return u, result.Error
 	}
-	return string(s2)
+	return u, nil
+}
+
+func ClearBackpad(id string, backpad Backpad) (error, string) {
+	var b Backpad
+	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).First(&b)
+	backpad.State = 1
+	if result := DB.Model(&b).Update(backpad); result.Error != nil {
+		return result.Error, ""
+	}
+	u, _ := GetUserInfo(id)
+	if u.Gold < 500 {
+		return nil, "金币不足"
+	}
+	u.Gold -= 500
+	err := UpdateUserInfo(u)
+	return err, ""
 }

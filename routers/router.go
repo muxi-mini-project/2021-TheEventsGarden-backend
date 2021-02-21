@@ -8,6 +8,16 @@ import (
 
 //Router .
 func Router(r *gin.Engine) {
-	r.POST("/api/v1", handler.Login)
-	r.POST("/api/v1/crawler", handler.Crawler)
+
+	//user:
+	g1 := r.Group("/api/v1/user")
+	{
+		//登陆
+		g1.POST("/", handler.Login)
+
+		//修改用户信息
+		g1.PUT("/", handler.ChangeUserInfo)
+	}
+	//作业
+	r.POST("/api/v1/homework", handler.Crawler)
 }

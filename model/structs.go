@@ -1,8 +1,49 @@
 package model
 
 import (
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 )
+
+type Jwt struct {
+	StudentID string `json:"student_id"`
+	jwt.StandardClaims
+}
+
+type User struct {
+	StudentID   string `json:"student_id"`
+	Name        string `json:"name"`
+	Password    string `json:"password"`
+	UserPicture string `json:"user_picture"`
+	Summary     string `json:"summary"`
+	Sex         int    `json:"sex"`
+	Gold        int    `json:"gold"`
+}
+
+type Homework struct {
+	Teacher string `json:"teacher"`
+	Time    string `json:"time"`
+	Title   string `json:"title"`
+	Status  string `json:"status"`
+	Class   string `json:"class"`
+	Content string `json:"content"`
+}
+
+type Backpad struct {
+	StudentID string    `json:"student_id,omitempty"`
+	Name      string    `json:"name,omitempty"`
+	Time      time.Time `json:"time,omitempty"`
+	Hours     int       `json:"hours,omitempty"`
+	Minutes   int       `json:"minutes,omitempty"`
+	State     int       `json:"state,omitempty"`
+}
+
+//
+
+//
+
+//
 
 type Response struct {
 	Code uint8  `json:"code"`
@@ -46,23 +87,4 @@ type Response struct {
 			RealName       string `json:"realname"`
 		} `json:"roleDepartment"`
 	} `json:"data"`
-}
-
-type Jwt struct {
-	StudentID string `json:"student_id"`
-	jwt.StandardClaims
-}
-
-type User struct {
-	StudentID string `json:"id"`
-	Password  string `json:"password"`
-}
-
-type homework struct {
-	Teacher string `json:"teacher"`
-	Time    string `json:"time"`
-	Title   string `json:"title"`
-	Status  string `json:"status"`
-	Class   string `json:"class"`
-	Content string `json:"content"`
 }
