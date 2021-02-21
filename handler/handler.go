@@ -31,17 +31,18 @@ func Login(c *gin.Context) {
 		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
 		return
 	}
-	_, err := model.GetUserInfoFormOne(p.StudentID, p.Password)
-	if err != nil {
-		c.JSON(401, "用户名或密码错误")
-		return
-	}
+	// _, err := model.GetUserInfoFormOne(p.StudentID, p.Password)
+	// if err != nil {
+	// 	c.JSON(401, "用户名或密码错误")
+	// 	return
+	// }
 	if resu := model.DB.Where("student_id = ?", p.StudentID).First(&p); resu.Error != nil {
 		p.Summary = "这个家伙很懒，还没有写简介哦"
 		p.Name = "小樨"
 		//性别未设置 默认为0
 		p.Gold = 0
 		p.Sex = 0
+		p.Flower = 0
 		p.UserPicture = "www.baidu.com"
 		model.DB.Create(&p)
 	}
@@ -51,7 +52,7 @@ func Login(c *gin.Context) {
 	claims.ExpiresAt = time.Now().Add(200 * time.Hour).Unix()
 	claims.IssuedAt = time.Now().Unix()
 
-	var Secret = "vinegar" //加醋
+	var Secret = "sugar" //加糖
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	signedToken, err := token.SignedString([]byte(Secret))
@@ -116,7 +117,7 @@ func ChangeUserInfo(c *gin.Context) {
 		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
 		return
 	}
-	if user.Sex != 0 || user.Sex != 1 || user.Sex != 2 {
+	if user.Sex != 0 && user.Sex != 1 && user.Sex != 2 {
 		c.JSON(400, gin.H{"message": "Sex参数错误(0 = 未设置， 1 = 男， 2 = 女)"})
 		return
 	}
@@ -141,7 +142,10 @@ func CreateBackpad(c *gin.Context) {
 		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
 		return
 	}
-	if err := model.CreateBackpad(id, b); err != nil {
+	if err, str := model.CreateBackpad(id, b); str != "" {
+		c.JSON(203, gin.H{"message": str})
+		return
+	} else if err != nil {
 		c.JSON(400, gin.H{"message": "新增待办失败"})
 		return
 	}
@@ -200,7 +204,7 @@ func GetUserInfo(c *gin.Context) {
 	c.JSON(200, user)
 }
 
-func Clear(c *gin.Context) {
+func ClearBackpad(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
 	if err != nil {
@@ -214,11 +218,100 @@ func Clear(c *gin.Context) {
 		return
 	}
 	if err, str := model.ClearBackpad(id, b); str != "" {
-		c.JSON(400, gin.H{"message": str})
+		c.JSON(203, gin.H{"message": str})
 		return
 	} else if err != nil {
 		c.JSON(400, gin.H{"message": "清除待办失败"})
 		return
 	}
 	c.JSON(200, gin.H{"message": "清除待办成功"})
+}
+
+func CompleteBackpad(c *gin.Context) {
+	token := c.Request.Header.Get("token")
+	id, err := model.VerifyToken(token)
+	if err != nil {
+		c.JSON(401, gin.H{"message": "Token Invalid."})
+		return
+	}
+
+	var b model.Backpad
+	if err := c.BindJSON(&b); err != nil {
+		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
+		return
+	}
+	var t struct {
+		FinishTime int `json:"finish_time"`
+	}
+	c.BindJSON(&t)
+	if err := model.CompleteBackpad(id, b, t.FinishTime); err != nil {
+		c.JSON(400, gin.H{"message": "完成待办失败"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "完成待办成功"})
+
+}
+
+func GetSkins(c *gin.Context) {
+	token := c.Request.Header.Get("token")
+	id, err := model.VerifyToken(token)
+	if err != nil {
+		c.JSON(401, gin.H{"message": "Token Invalid."})
+		return
+	}
+
+	skins, err := model.GetSkins(id)
+	if err != nil {
+		c.JSON(400, gin.H{"message": "获取皮肤失败"})
+		return
+	}
+	c.JSON(200, skins)
+}
+
+func BuySkin(c *gin.Context) {
+	token := c.Request.Header.Get("token")
+	id, err := model.VerifyToken(token)
+	if err != nil {
+		c.JSON(401, gin.H{"message": "Token Invalid."})
+		return
+	}
+
+	var skin model.Skin
+	if err := c.BindJSON(&skin); err != nil {
+		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
+		return
+	}
+	if err, str := model.BuySkin(id, skin); str != "" {
+		c.JSON(203, gin.H{"message": str})
+		return
+	} else if err != nil {
+		c.JSON(400, gin.H{"message": "购买皮肤失败"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "购买成功"})
+}
+
+func BuyFlower(c *gin.Context) {
+	token := c.Request.Header.Get("token")
+	id, err := model.VerifyToken(token)
+	if err != nil {
+		c.JSON(401, gin.H{"message": "Token Invalid."})
+		return
+	}
+
+	var n struct {
+		Number int `json:"number"`
+	}
+	if err := c.BindJSON(&n); err != nil {
+		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
+		return
+	}
+	if err, str := model.BuyFlower(id, n.Number); str != "" {
+		c.JSON(203, gin.H{"message": str})
+		return
+	} else if err != nil {
+		c.JSON(400, gin.H{"message": "摘花失败"})
+		return
+	}
+	c.JSON(200, gin.H{"message": "摘花成功"})
 }

@@ -19,6 +19,7 @@ type User struct {
 	Summary     string `json:"summary"`
 	Sex         int    `json:"sex"`
 	Gold        int    `json:"gold"`
+	Flower      int    `json:"flower"`
 }
 
 type Homework struct {
@@ -31,12 +32,19 @@ type Homework struct {
 }
 
 type Backpad struct {
-	StudentID string    `json:"student_id,omitempty"`
-	Name      string    `json:"name,omitempty"`
-	Time      time.Time `json:"time,omitempty"`
-	Hours     int       `json:"hours,omitempty"`
-	Minutes   int       `json:"minutes,omitempty"`
-	State     int       `json:"state,omitempty"`
+	StudentID string    `json:"student_id"`
+	Name      string    `json:"name"`
+	Time      time.Time `json:"time"`
+	Hours     int       `json:"hours"`
+	Minutes   int       `json:"minutes"`
+	State     int       `json:"state"`
+	Day       int       `json:"day"`
+}
+
+type Skin struct {
+	StudentID string `json:"student_id"`
+	SkinID    int    `json:"skin_id"`
+	Price     int    `json:"price"`
 }
 
 //
