@@ -15,6 +15,143 @@
     },
     "host": "124.71.184.107",
     "paths": {
+        "/garden": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "garden"
+                ],
+                "summary": "获取用户花园皮肤",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Skin"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "获取皮肤失败"
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "garden"
+                ],
+                "summary": "买花",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "需要 number",
+                        "name": "Skin",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.N"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "摘花成功"
+                    },
+                    "203": {
+                        "description": "金币不足"
+                    },
+                    "400": {
+                        "description": "摘花失败\" or \"Lack Necessary_Param."
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "garden"
+                ],
+                "summary": "新增皮肤",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "只需要 skin_id",
+                        "name": "Skin",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Skin"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "购买成功"
+                    },
+                    "203": {
+                        "description": "未找到该皮肤\" or \"已拥有\" or \"未购买x号皮肤\" or \"金币不足"
+                    },
+                    "400": {
+                        "description": "购买皮肤失败\" or \"Lack Necessary_Param."
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            }
+        },
         "/homework": {
             "post": {
                 "description": "爬取用户云课堂作业",
@@ -49,7 +186,7 @@
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.homework"
+                                "$ref": "#/definitions/model.Homework"
                             }
                         }
                     },
@@ -65,7 +202,289 @@
                 }
             }
         },
+        "/notepad": {
+            "get": {
+                "description": "获取该用户所有待办",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notepad"
+                ],
+                "summary": "查询待办",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Backpad"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "查询失败\" or \"Lack Necessary_Param."
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            },
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notepad"
+                ],
+                "summary": "取消待办",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "只需要该待办名 name",
+                        "name": "Backpad",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Backpad"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "修改待办成功"
+                    },
+                    "400": {
+                        "description": "新增待办失败\" or \"Lack Necessary_Param."
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            },
+            "post": {
+                "description": "需要该待办名 name 和",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notepad"
+                ],
+                "summary": "完成待办",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "只需要该待办名 name",
+                        "name": "Backpad",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Backpad"
+                        }
+                    },
+                    {
+                        "description": "需要完成时间 finish_time",
+                        "name": "time",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.T"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "完成待办成功"
+                    },
+                    "203": {
+                        "description": "失败，该用户今日已使用该待办名"
+                    },
+                    "400": {
+                        "description": "完成待办失败\" or \"Lack Necessary_Param."
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            }
+        },
+        "/notepad/clear": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notepad"
+                ],
+                "summary": "消除未完成待办",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "只需要该待办名 name",
+                        "name": "Backpad",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Backpad"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "清除待办成功"
+                    },
+                    "203": {
+                        "description": "该待办已完成或已取消\" or \"金币不足"
+                    },
+                    "400": {
+                        "description": "新增待办失败\" or \"Lack Necessary_Param."
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            }
+        },
+        "/notepad/create": {
+            "post": {
+                "description": "接收新的Backpad结构体来新建待办",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "notepad"
+                ],
+                "summary": "新建待办",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "name 必需 hour和minute可选",
+                        "name": "Backpad",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Backpad"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "新增待办成功"
+                    },
+                    "203": {
+                        "description": "失败，该用户今日已使用该待办名"
+                    },
+                    "400": {
+                        "description": "新增待办失败\" or \"Lack Necessary_Param."
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            }
+        },
         "/user": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "获取用户信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token",
+                        "name": "token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "400": {
+                        "description": "查询失败"
+                    },
+                    "401": {
+                        "description": "Token Invalid."
+                    },
+                    "500": {
+                        "description": "Fail."
+                    }
+                }
+            },
             "put": {
                 "description": "接收新的User结构体来修改用户信息",
                 "consumes": [
@@ -155,6 +574,22 @@
         }
     },
     "definitions": {
+        "handler.N": {
+            "type": "object",
+            "properties": {
+                "number": {
+                    "type": "integer"
+                }
+            }
+        },
+        "handler.T": {
+            "type": "object",
+            "properties": {
+                "finish_time": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.Token": {
             "type": "object",
             "properties": {
@@ -163,30 +598,33 @@
                 }
             }
         },
-        "model.User": {
+        "model.Backpad": {
             "type": "object",
             "properties": {
+                "day": {
+                    "type": "integer"
+                },
+                "hours": {
+                    "type": "integer"
+                },
+                "minutes": {
+                    "type": "integer"
+                },
                 "name": {
                     "type": "string"
                 },
-                "password": {
-                    "type": "string"
-                },
-                "sex": {
+                "state": {
                     "type": "integer"
                 },
                 "student_id": {
                     "type": "string"
                 },
-                "summary": {
-                    "type": "string"
-                },
-                "user_picture": {
+                "time": {
                     "type": "string"
                 }
             }
         },
-        "model.homework": {
+        "model.Homework": {
             "type": "object",
             "properties": {
                 "class": {
@@ -205,6 +643,49 @@
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.Skin": {
+            "type": "object",
+            "properties": {
+                "price": {
+                    "type": "integer"
+                },
+                "skin_id": {
+                    "type": "integer"
+                },
+                "student_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "flower": {
+                    "type": "integer"
+                },
+                "gold": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                },
+                "sex": {
+                    "type": "integer"
+                },
+                "student_id": {
+                    "type": "string"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "user_picture": {
                     "type": "string"
                 }
             }

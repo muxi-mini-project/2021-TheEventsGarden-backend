@@ -31,11 +31,11 @@ func Login(c *gin.Context) {
 		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
 		return
 	}
-	// _, err := model.GetUserInfoFormOne(p.StudentID, p.Password)
-	// if err != nil {
-	// 	c.JSON(401, "用户名或密码错误")
-	// 	return
-	// }
+	_, err := model.GetUserInfoFormOne(p.StudentID, p.Password)
+	if err != nil {
+		c.JSON(401, "用户名或密码错误")
+		return
+	}
 	if resu := model.DB.Where("student_id = ?", p.StudentID).First(&p); resu.Error != nil {
 		p.Summary = "这个家伙很懒，还没有写简介哦"
 		p.Name = "小樨"
@@ -70,7 +70,7 @@ func Login(c *gin.Context) {
 // @Produce application/json
 // @Param token header string true "token"
 // @Param password body model.User true "password"
-// @Success 200 {object} []model.homework "获取成功"
+// @Success 200 {object} []model.Homework "获取成功"
 // @Failure 400 "Lack Necessary_Param."
 // @Failure 401 "Token Invalid."
 // @Failure 500 "Fail."
@@ -129,6 +129,45 @@ func ChangeUserInfo(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "修改成功"})
 }
 
+// @Summary 获取用户信息
+// @Tags user
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Success 200 {object} model.User
+// @Failure 401 "Token Invalid."
+// @Failure 400 "查询失败"
+// @Failure 500 "Fail."
+// @Router /user [get]
+func GetUserInfo(c *gin.Context) {
+	token := c.Request.Header.Get("token")
+	id, err := model.VerifyToken(token)
+	if err != nil {
+		c.JSON(401, gin.H{"message": "Token Invalid."})
+		return
+	}
+
+	user, err := model.GetUserInfo(id)
+	if err != nil {
+		c.JSON(400, gin.H{"message": "查询失败"})
+		return
+	}
+	c.JSON(200, user)
+}
+
+// @Summary 新建待办
+// @Tags notepad
+// @Description 接收新的Backpad结构体来新建待办
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Param Backpad body model.Backpad true "name 必需 hour和minute可选"
+// @Success 200 "新增待办成功"
+// @Failure 401 "Token Invalid."
+// @Failure 400 "新增待办失败" or "Lack Necessary_Param."
+// @Failure 203 "失败，该用户今日已使用该待办名"
+// @Failure 500 "Fail."
+// @Router /notepad/create [post]
 func CreateBackpad(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -152,6 +191,18 @@ func CreateBackpad(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "新增待办成功"})
 }
 
+// @Summary 取消待办
+// @Tags notepad
+// @Description
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Param Backpad body model.Backpad true "只需要该待办名 name"
+// @Success 200 "修改待办成功"
+// @Failure 401 "Token Invalid."
+// @Failure 400 "新增待办失败" or "Lack Necessary_Param."
+// @Failure 500 "Fail."
+// @Router /notepad [put]
 func ChangeBackpad(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -172,6 +223,17 @@ func ChangeBackpad(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "修改待办成功"})
 }
 
+// @Summary 查询待办
+// @Tags notepad
+// @Description 获取该用户所有待办
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Success 200 {object} []model.Backpad
+// @Failure 401 "Token Invalid."
+// @Failure 400 "查询失败" or "Lack Necessary_Param."
+// @Failure 500 "Fail."
+// @Router /notepad [get]
 func Getbackpads(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -188,22 +250,19 @@ func Getbackpads(c *gin.Context) {
 	c.JSON(200, backpads)
 }
 
-func GetUserInfo(c *gin.Context) {
-	token := c.Request.Header.Get("token")
-	id, err := model.VerifyToken(token)
-	if err != nil {
-		c.JSON(401, gin.H{"message": "Token Invalid."})
-		return
-	}
-
-	user, err := model.GetUserInfo(id)
-	if err != nil {
-		c.JSON(400, gin.H{"message": "查询失败"})
-		return
-	}
-	c.JSON(200, user)
-}
-
+// @Summary 消除未完成待办
+// @Tags notepad
+// @Description
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Param Backpad body model.Backpad true "只需要该待办名 name"
+// @Success 200 "清除待办成功"
+// @Failure 401 "Token Invalid."
+// @Failure 400 "新增待办失败" or "Lack Necessary_Param."
+// @Failure 203 "该待办已完成或已取消" or "金币不足"
+// @Failure 500 "Fail."
+// @Router /notepad/clear [put]
 func ClearBackpad(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -227,6 +286,24 @@ func ClearBackpad(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "清除待办成功"})
 }
 
+type T struct {
+	FinishTime int `json:"finish_time"`
+}
+
+// @Summary 完成待办
+// @Tags notepad
+// @Description 需要该待办名 name 和
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Param Backpad body model.Backpad true "只需要该待办名 name"
+// @Param time body T true "需要完成时间 finish_time"
+// @Success 200 "完成待办成功"
+// @Failure 401 "Token Invalid."
+// @Failure 400 "完成待办失败" or "Lack Necessary_Param."
+// @Failure 203 "失败，该用户今日已使用该待办名"
+// @Failure 500 "Fail."
+// @Router /notepad [post]
 func CompleteBackpad(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -240,9 +317,7 @@ func CompleteBackpad(c *gin.Context) {
 		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
 		return
 	}
-	var t struct {
-		FinishTime int `json:"finish_time"`
-	}
+	var t T
 	c.BindJSON(&t)
 	if err := model.CompleteBackpad(id, b, t.FinishTime); err != nil {
 		c.JSON(400, gin.H{"message": "完成待办失败"})
@@ -252,6 +327,16 @@ func CompleteBackpad(c *gin.Context) {
 
 }
 
+// @Summary 获取用户花园皮肤
+// @Tags garden
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Success 200 {object} []model.Skin
+// @Failure 401 "Token Invalid."
+// @Failure 400 "获取皮肤失败"
+// @Failure 500 "Fail."
+// @Router /garden [get]
 func GetSkins(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -268,6 +353,19 @@ func GetSkins(c *gin.Context) {
 	c.JSON(200, skins)
 }
 
+// @Summary 新增皮肤
+// @Tags garden
+// @Description
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Param Skin body model.Skin true "只需要 skin_id"
+// @Success 200 "购买成功"
+// @Failure 401 "Token Invalid."
+// @Failure 400 "购买皮肤失败" or "Lack Necessary_Param."
+// @Failure 203 "未找到该皮肤" or "已拥有" or "未购买x号皮肤" or "金币不足"
+// @Failure 500 "Fail."
+// @Router /garden [post]
 func BuySkin(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -291,6 +389,23 @@ func BuySkin(c *gin.Context) {
 	c.JSON(200, gin.H{"message": "购买成功"})
 }
 
+type N struct {
+	Number int `json:"number"`
+}
+
+// @Summary 买花
+// @Tags garden
+// @Description
+// @Accept application/json
+// @Produce application/json
+// @Param token header string true "token"
+// @Param Skin body N true "需要 number"
+// @Success 200 "摘花成功"
+// @Failure 401 "Token Invalid."
+// @Failure 400 "摘花失败" or "Lack Necessary_Param."
+// @Failure 203 "金币不足"
+// @Failure 500 "Fail."
+// @Router /garden [put]
 func BuyFlower(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
@@ -299,9 +414,7 @@ func BuyFlower(c *gin.Context) {
 		return
 	}
 
-	var n struct {
-		Number int `json:"number"`
-	}
+	var n N
 	if err := c.BindJSON(&n); err != nil {
 		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
 		return

@@ -21,7 +21,7 @@ var err error
 // @BasePath: /api/v1
 // @Schemes http
 func main() {
-	model.DB, err = gorm.Open("mysql", "tao:12345678@/EG?parseTime=True")
+	model.DB, err = gorm.Open("mysql", "root:1234@/EG?parseTime=True")
 	if err != nil {
 		panic(err)
 	}
