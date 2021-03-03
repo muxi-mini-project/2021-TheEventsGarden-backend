@@ -4,7 +4,6 @@ Use EG
 DROP TABLE IF EXISTS users;
 create table users(
   student_id   varchar(100)  not null UNIQUE,
-  password     varchar(100)  not null ,
   user_picture varchar(100)  not null ,
   name         varchar(100)  not null ,
   summary      varchar(1999) not null ,
