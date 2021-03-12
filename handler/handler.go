@@ -69,9 +69,8 @@ func Login(c *gin.Context) {
 // @Accept application/json
 // @Produce application/json
 // @Param token header string true "token"
-// @Param password body model.User true "password"
 // @Success 200 {object} []model.Homework "获取成功"
-// @Failure 400 "Lack Necessary_Param."
+// @Failure 400 "Fail."
 // @Failure 401 "Token Invalid."
 // @Failure 500 "Fail."
 // @Router /homework [post]
@@ -83,12 +82,12 @@ func Crawler(c *gin.Context) {
 		return
 	}
 
-	var p model.User
-	if err := c.BindJSON(&p); err != nil {
-		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
+	u, err := model.GetUserInfo(id)
+	if err != nil {
+		c.JSON(400, gin.H{"message": "Fail."})
 		return
 	}
-	results := model.GetHomework(id, p.Password)
+	results := model.GetHomework(id, u.Password)
 	c.JSON(200, results)
 }
 

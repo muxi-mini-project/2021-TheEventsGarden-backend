@@ -185,12 +185,6 @@ paths:
         name: token
         required: true
         type: string
-      - description: password
-        in: body
-        name: password
-        required: true
-        schema:
-          $ref: '#/definitions/model.User'
       produces:
       - application/json
       responses:
@@ -201,7 +195,7 @@ paths:
               $ref: '#/definitions/model.Homework'
             type: array
         "400":
-          description: Lack Necessary_Param.
+          description: Fail.
         "401":
           description: Token Invalid.
         "500":

@@ -182,15 +182,6 @@ var doc = `{
                         "name": "token",
                         "in": "header",
                         "required": true
-                    },
-                    {
-                        "description": "password",
-                        "name": "password",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.User"
-                        }
                     }
                 ],
                 "responses": {
@@ -204,7 +195,7 @@ var doc = `{
                         }
                     },
                     "400": {
-                        "description": "Lack Necessary_Param."
+                        "description": "Fail."
                     },
                     "401": {
                         "description": "Token Invalid."
