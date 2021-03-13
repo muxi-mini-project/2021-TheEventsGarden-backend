@@ -29,12 +29,10 @@ func GetHomework(id string, pwd string) []Homework {
 	if err != nil {
 		panic(err)
 	}
-	_, Homeworkss, err := LoginSPOC(id, pwd, client)
+	Homeworkss, err := LoginSPOC(id, pwd, client)
 	if err != nil {
 		panic(err)
 	}
-	//log.Println(response)
-	//log.Println(Homeworkss)
 	return Homeworkss
 }
 
@@ -50,7 +48,7 @@ func NewClient() (*http.Client, error) {
 	return &client, nil
 }
 
-func LoginSPOC(sno, password string, client *http.Client) (*Response, []Homework, error) {
+func LoginSPOC(sno, password string, client *http.Client) ([]Homework, error) {
 	v := url.Values{}
 	v.Set("loginName", sno)
 	v.Set("password", password)
@@ -65,18 +63,18 @@ func LoginSPOC(sno, password string, client *http.Client) (*Response, []Homework
 	}*/
 	request, err := http.NewRequest("POST", "http://spoc.ccnu.edu.cn/userLoginController/getUserProfile", strings.NewReader(v.Encode()))
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	request = AddHeaders(request)
 	_, err = client.Do(request)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	request, err = http.NewRequest("POST", "http://spoc.ccnu.edu.cn/userInfo/getUserInfo", nil)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	request = AddHeaders(request)
 	resp, respErr := client.Do(request)
@@ -87,11 +85,11 @@ func LoginSPOC(sno, password string, client *http.Client) (*Response, []Homework
 	response2 := Response{}
 	err = json.Unmarshal(body, &response2)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	if respErr != nil {
-		return nil, nil, respErr
+		return nil, respErr
 	}
 
 	// 爬信息
@@ -158,7 +156,7 @@ func LoginSPOC(sno, password string, client *http.Client) (*Response, []Homework
 			}
 		}
 	}
-	return nil, homeworks, nil
+	return homeworks, nil
 }
 
 //去掉content里面的htmi 如 <> 与 &nbsp
