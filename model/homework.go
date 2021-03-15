@@ -137,7 +137,8 @@ func LoginSPOC(sno, password string, client *http.Client) ([]Homework, error) {
 					Homework.Teacher = teachers[i]
 					Time := gjson.Get(string(body), "data.list."+num+".endtime")
 					x := time.Unix(Time.Int()/1000, 0)
-					Homework.Time = x.Format("2006-01-04 03:04:05")
+					// Homework.Time = x.Format("2006-01-04 03:04:05")
+					Homework.Time = x.Format("2006-01-02 15:04:05")
 					content := gjson.Get(string(body), "data.list."+num+".content")
 					Homework.Content = Content(content.String())
 					title := gjson.Get(string(body), "data.list."+num+".title")
@@ -159,7 +160,7 @@ func LoginSPOC(sno, password string, client *http.Client) ([]Homework, error) {
 	return homeworks, nil
 }
 
-//去掉content里面的htmi 如 <> 与 &nbsp
+//去掉content里面的html 如 <> 与 &nbsp
 func Content(s string) string {
 	ss := []byte(s)
 	var s2 []byte
