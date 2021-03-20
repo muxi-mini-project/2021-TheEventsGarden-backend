@@ -1,3 +1,4 @@
+basePath: /api/v1
 definitions:
   handler.N:
     properties:
@@ -175,7 +176,7 @@ paths:
       tags:
       - garden
   /homework:
-    post:
+    get:
       consumes:
       - application/json
       description: 爬取用户云课堂作业

@@ -18,11 +18,12 @@ var err error
 // @contact.name TAODEI
 // @contact.email 864978550@qq.com
 // @host 39.102.42.156
-// @BasePath: /api/v1
+// @BasePath /api/v1
 // @Schemes http
 //124.71.184.107
 func main() {
 	model.DB, err = gorm.Open("mysql", "root:1234@/EG?parseTime=True")
+	//model.DB, err = gorm.Open("mysql", "tao:12345678@/EG?parseTime=True")
 	if err != nil {
 		panic(err)
 	}

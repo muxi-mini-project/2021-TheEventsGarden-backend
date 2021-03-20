@@ -37,7 +37,7 @@ func VerifyToken(strToken string) (string, error) {
 
 func UpdateUserInfo(user User) error {
 	var u User
-	result := DB.Model(&u).Update(user)
+	result := DB.Model(&u).Where("student_id = ? ", user.StudentID).Update(user)
 	return result.Error
 }
 
@@ -61,9 +61,8 @@ func CreateBackpad(id string, backpad Backpad) (error, string) {
 
 func ChangeBackpad(id string, backpad Backpad) error {
 	var b Backpad
-	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).First(&b)
 	backpad.State = 2
-	result := DB.Model(&b).Update(backpad)
+	result := DB.Model(&b).Where("student_id = ? AND name = ? ", id, backpad.Name).Update(backpad)
 	return result.Error
 }
 
@@ -96,7 +95,7 @@ func ClearBackpad(id string, backpad Backpad) (error, string) {
 		return nil, "金币不足"
 	}
 	backpad.State = 1
-	if result := DB.Model(&b).Update(backpad); result.Error != nil {
+	if result := DB.Model(&b).Where("student_id = ? AND name = ? ", id, backpad.Name).Update(backpad); result.Error != nil {
 		return result.Error, ""
 	}
 	u.Gold -= 500
@@ -108,7 +107,7 @@ func CompleteBackpad(id string, backpad Backpad, time int) error {
 	backpad.State = 1
 	var b Backpad
 	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).First(&b)
-	if result := DB.Model(&b).Update(backpad); result.Error != nil {
+	if result := DB.Model(&b).Where("student_id = ? AND name = ? ", id, backpad.Name).Update(backpad); result.Error != nil {
 		return result.Error
 	}
 	u, _ := GetUserInfo(id)

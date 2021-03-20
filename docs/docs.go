@@ -166,7 +166,7 @@ var doc = `{
             }
         },
         "/homework": {
-            "post": {
+            "get": {
                 "description": "爬取用户云课堂作业",
                 "consumes": [
                     "application/json"
@@ -710,7 +710,7 @@ type swaggerInfo struct {
 var SwaggerInfo = swaggerInfo{
 	Version:     "1.0.0",
 	Host:        "39.102.42.156",
-	BasePath:    "",
+	BasePath:    "/api/v1",
 	Schemes:     []string{"http"},
 	Title:       "TheEventsGarden API",
 	Description: "记事园API",

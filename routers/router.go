@@ -55,5 +55,5 @@ func Router(r *gin.Engine) {
 		//g3.PUT("/buy", handler.BuyFlower)
 	}
 	//作业
-	r.POST("/api/v1/homework", handler.Crawler)
+	r.GET("/api/v1/homework", handler.Crawler)
 }

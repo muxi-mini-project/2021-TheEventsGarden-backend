@@ -234,7 +234,9 @@ func makeAccountRequest(sid, password string, params *accountReqeustParams, clie
 		log.Println("Wrong sid or pwd")
 		return errors.New("Wrong sid or pwd.")
 	}
-
+	fmt.Printf("%s\n", resp.Request)
+	fmt.Printf("%s\n", resp.Cookies())
+	fmt.Printf("%s\n", resp.Header)
 	log.Println("Login successfully")
 	return nil
 }

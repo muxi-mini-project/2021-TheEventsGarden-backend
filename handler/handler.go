@@ -73,7 +73,7 @@ func Login(c *gin.Context) {
 // @Failure 400 "Fail."
 // @Failure 401 "Token Invalid."
 // @Failure 500 "Fail."
-// @Router /homework [post]
+// @Router /homework [get]
 func Crawler(c *gin.Context) {
 	token := c.Request.Header.Get("token")
 	id, err := model.VerifyToken(token)
