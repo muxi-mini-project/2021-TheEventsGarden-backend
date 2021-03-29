@@ -49,7 +49,7 @@ func CreateBackpad(id string, backpad Backpad) (error, string) {
 		return nil, "失败，该用户今日已使用该待办名"
 	}
 	backpad.Day = today
-	backpad.Time = time.Now()
+	backpad.Time = time.Now().Format("2006-01-02 15:04:05")
 	backpad.StudentID = id
 	// 0 = 未完成
 	backpad.State = 0
@@ -86,7 +86,7 @@ func GetUserInfo(id string) (User, error) {
 
 func ClearBackpad(id string, backpad Backpad) (error, string) {
 	var b Backpad
-	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).First(&b)
+	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).Last(&b)
 	if b.State == 1 || b.State == 2 {
 		return nil, "该待办已完成或已取消"
 	}
@@ -106,7 +106,7 @@ func ClearBackpad(id string, backpad Backpad) (error, string) {
 func CompleteBackpad(id string, backpad Backpad, time int) error {
 	backpad.State = 1
 	var b Backpad
-	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).First(&b)
+	DB.Where("student_id = ? AND name = ? ", id, backpad.Name).Last(&b)
 	if result := DB.Model(&b).Where("student_id = ? AND name = ? ", id, backpad.Name).Update(backpad); result.Error != nil {
 		return result.Error
 	}

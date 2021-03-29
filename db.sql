@@ -19,7 +19,7 @@ create table backpads(
   id         int          not null auto_increment ,
   student_id varchar(100) not null ,
   name       varchar(100) not null ,
-  time       datetime     not null ,
+  time       varchar(100) not null ,
   state      int          not null ,
   day        int          not null ,
   hours      int ,

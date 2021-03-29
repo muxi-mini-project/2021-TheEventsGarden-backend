@@ -1,8 +1,6 @@
 package model
 
 import (
-	"time"
-
 	"github.com/dgrijalva/jwt-go"
 )
 
@@ -32,13 +30,13 @@ type Homework struct {
 }
 
 type Backpad struct {
-	StudentID string    `json:"student_id"`
-	Name      string    `json:"name"`
-	Time      time.Time `json:"time"`
-	Hours     int       `json:"hours"`
-	Minutes   int       `json:"minutes"`
-	State     int       `json:"state"`
-	Day       int       `json:"day"`
+	StudentID string `json:"student_id"`
+	Name      string `json:"name"`
+	Time      string `json:"time"`
+	Hours     int    `json:"hours"`
+	Minutes   int    `json:"minutes"`
+	State     int    `json:"state"`
+	Day       int    `json:"day"`
 }
 
 type Skin struct {

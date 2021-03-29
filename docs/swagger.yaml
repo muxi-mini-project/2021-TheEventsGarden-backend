@@ -1,0 +1,451 @@
+basePath: /api/v1
+definitions:
+  handler.N:
+    properties:
+      number:
+        type: integer
+    type: object
+  handler.T:
+    properties:
+      finish_time:
+        type: integer
+    type: object
+  handler.Token:
+    properties:
+      token:
+        type: string
+    type: object
+  model.Backpad:
+    properties:
+      day:
+        type: integer
+      hours:
+        type: integer
+      minutes:
+        type: integer
+      name:
+        type: string
+      state:
+        type: integer
+      student_id:
+        type: string
+      time:
+        type: string
+    type: object
+  model.Homework:
+    properties:
+      class:
+        type: string
+      content:
+        type: string
+      status:
+        type: string
+      teacher:
+        type: string
+      time:
+        type: string
+      title:
+        type: string
+    type: object
+  model.Skin:
+    properties:
+      price:
+        type: integer
+      skin_id:
+        type: integer
+      student_id:
+        type: string
+    type: object
+  model.User:
+    properties:
+      flower:
+        type: integer
+      gold:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      sex:
+        type: integer
+      student_id:
+        type: string
+      summary:
+        type: string
+      user_picture:
+        type: string
+    type: object
+host: 39.102.42.156
+info:
+  contact:
+    email: 864978550@qq.com
+    name: TAODEI
+  description: 记事园API
+  termsOfService: http://swagger.io/terrms/
+  title: TheEventsGarden API
+  version: 1.0.0
+paths:
+  /garden:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Skin'
+            type: array
+        "400":
+          description: 获取皮肤失败
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 获取用户花园皮肤
+      tags:
+      - garden
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 只需要 skin_id
+        in: body
+        name: Skin
+        required: true
+        schema:
+          $ref: '#/definitions/model.Skin'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 购买成功
+        "203":
+          description: 未找到该皮肤" or "已拥有" or "未购买x号皮肤" or "金币不足
+        "400":
+          description: 购买皮肤失败" or "Lack Necessary_Param.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 新增皮肤
+      tags:
+      - garden
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 需要 number
+        in: body
+        name: Skin
+        required: true
+        schema:
+          $ref: '#/definitions/handler.N'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 摘花成功
+        "203":
+          description: 金币不足
+        "400":
+          description: 摘花失败" or "Lack Necessary_Param.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 买花
+      tags:
+      - garden
+  /homework:
+    get:
+      consumes:
+      - application/json
+      description: 爬取用户云课堂作业
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 获取成功
+          schema:
+            items:
+              $ref: '#/definitions/model.Homework'
+            type: array
+        "400":
+          description: Fail.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 爬取作业
+  /notepad:
+    get:
+      consumes:
+      - application/json
+      description: 获取该用户所有待办
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Backpad'
+            type: array
+        "400":
+          description: 查询失败" or "Lack Necessary_Param.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 查询待办
+      tags:
+      - notepad
+    post:
+      consumes:
+      - application/json
+      description: 需要该待办名 name 和
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 只需要该待办名 name
+        in: body
+        name: Backpad
+        required: true
+        schema:
+          $ref: '#/definitions/model.Backpad'
+      - description: 需要完成时间 finish_time
+        in: body
+        name: time
+        required: true
+        schema:
+          $ref: '#/definitions/handler.T'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 完成待办成功
+        "203":
+          description: 失败，该用户今日已使用该待办名
+        "400":
+          description: 完成待办失败" or "Lack Necessary_Param.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 完成待办
+      tags:
+      - notepad
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 只需要该待办名 name
+        in: body
+        name: Backpad
+        required: true
+        schema:
+          $ref: '#/definitions/model.Backpad'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 修改待办成功
+        "400":
+          description: 新增待办失败" or "Lack Necessary_Param.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 取消待办
+      tags:
+      - notepad
+  /notepad/clear:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 只需要该待办名 name
+        in: body
+        name: Backpad
+        required: true
+        schema:
+          $ref: '#/definitions/model.Backpad'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 清除待办成功
+        "203":
+          description: 该待办已完成或已取消" or "金币不足
+        "400":
+          description: 新增待办失败" or "Lack Necessary_Param.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 消除未完成待办
+      tags:
+      - notepad
+  /notepad/create:
+    post:
+      consumes:
+      - application/json
+      description: 接收新的Backpad结构体来新建待办
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: name 必需 hour和minute可选
+        in: body
+        name: Backpad
+        required: true
+        schema:
+          $ref: '#/definitions/model.Backpad'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 新增待办成功
+        "203":
+          description: 失败，该用户今日已使用该待办名
+        "400":
+          description: 新增待办失败" or "Lack Necessary_Param.
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 新建待办
+      tags:
+      - notepad
+  /user:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: 查询失败
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 获取用户信息
+      tags:
+      - user
+    post:
+      consumes:
+      - application/json
+      description: 学号密码登录
+      parameters:
+      - description: 登录的用户信息
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 将student_id作为token保留
+          schema:
+            $ref: '#/definitions/handler.Token'
+        "400":
+          description: Lack Necessary_Param.
+        "401":
+          description: 用户名或密码错误
+        "500":
+          description: Fail.
+      summary: 登录
+      tags:
+      - user
+    put:
+      consumes:
+      - application/json
+      description: 接收新的User结构体来修改用户信息
+      parameters:
+      - description: token
+        in: header
+        name: token
+        required: true
+        type: string
+      - description: 需要修改的用户信息
+        in: body
+        name: User
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: 修改成功
+        "400":
+          description: Lack Necessary_Param." or "Sex参数错误(0 = 未设置， 1 = 男， 2 = 女)
+        "401":
+          description: Token Invalid.
+        "500":
+          description: Fail.
+      summary: 修改用户信息
+      tags:
+      - user
+schemes:
+- http
+swagger: "2.0"
