@@ -25,7 +25,7 @@ type Homework struct {
 	Time    string `json:"time"`
 	Title   string `json:"title"`
 	Status  string `json:"status"`
-	Class   string `json:"class"`
+	ClassID string `json:"class_id"`
 	Content string `json:"content"`
 }
 

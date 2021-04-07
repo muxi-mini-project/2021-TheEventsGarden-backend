@@ -151,7 +151,7 @@ func LoginSPOC(sno, password string, client *http.Client) ([]Homework, error) {
 					} else {
 						Homework.Status = "已驳回"
 					}
-					Homework.Class = names[i]
+					Homework.ClassID = names[i]
 					homeworks = append(homeworks, Homework)
 				}
 			}

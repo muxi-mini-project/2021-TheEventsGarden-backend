@@ -26,17 +26,22 @@ type Token struct {
 // @Failure 500 "Fail."
 // @Router /user [post]
 func Login(c *gin.Context) {
-	var p model.User
+	var p, u model.User
 	if err := c.BindJSON(&p); err != nil {
 		c.JSON(400, gin.H{"message": "Lack Necessary_Param."})
 		return
 	}
-	_, err := model.GetUserInfoFormOne(p.StudentID, p.Password)
-	if err != nil {
-		c.JSON(401, "用户名或密码错误")
+	if p.StudentID == "" {
+		c.JSON(400, gin.H{"message": "Lack Param Or Param Not Satisfiable."})
 		return
 	}
-	if resu := model.DB.Where("student_id = ?", p.StudentID).First(&p); resu.Error != nil {
+	resu := model.DB.Where("student_id = ?", p.StudentID).First(&u)
+	if resu.Error != nil {
+		_, err := model.GetUserInfoFormOne(p.StudentID, p.Password)
+		if err != nil {
+			c.JSON(401, "用户名或密码错误")
+			return
+		}
 		p.Summary = "这个家伙很懒，还没有写简介哦"
 		p.Name = "小樨"
 		//性别未设置 默认为0
@@ -45,6 +50,11 @@ func Login(c *gin.Context) {
 		p.Flower = 0
 		p.UserPicture = "www.baidu.com"
 		model.DB.Create(&p)
+	} else {
+		if p.Password != u.Password {
+			c.JSON(401, "用户名或密码错误")
+			return
+		}
 	}
 
 	claims := &model.Jwt{StudentID: p.StudentID}
